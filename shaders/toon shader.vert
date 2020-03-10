@@ -23,7 +23,7 @@ void main()
 {
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
     gl_Position = projection * view * model * vec4(position, 1.0);
-    output_normal = normal;
-    output_position = position;
+    output_normal = normalize(mat3(model) * normal);
+    output_position = mat3(model) * position;
 }
 

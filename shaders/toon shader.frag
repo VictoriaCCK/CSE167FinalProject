@@ -1,4 +1,5 @@
 #version 330 core
+layout(location = 0) out vec4 fragColor;
 // This is a sample fragment shader.
 
 // Inputs to the fragment shader are the outputs of the same name from the vertex shader.
@@ -13,54 +14,34 @@ uniform vec3 specular;
 uniform vec3 diffuse;
 uniform vec3 eye;
 
+const int levels = 10;
+const float scale_factor = 1/levels;
 // You can output many things. The first vec4 type output determines the color of the fragment
-out vec4 fragColor;
+//out vec4 fragColor;
 
 void main()
 {
-    vec3 world_point;
-    world_point = vec3(model * vec4(output_position, 1.0));
-    vec3 world_normal;
-    world_normal = transpose(inverse(mat3(model))) * output_normal;
-    
     vec3 dl = vec3(0.0f, 50.0f, 0.0f);
     vec3 lc = vec3(1.0f, 1.0f, 0.0f);
+    vec3 L = normalize(dl - output_position);
+    vec3 V = normalize(eye - output_position);
     
-    float c;
-    vec3 R;
-    vec3 L = normalize(dl - world_point);
-    vec3 N;
-    N = normalize(world_normal);
-    c = dot(L, N);
-    R = 2*dot(L, N)*N - L;
+    float diffuse_color = max(0, dot(L, output_normal));
+    vec3 diffuseColor = vec3(0.30, 0.80, 0.10);
+    diffuseColor = diffuseColor * diffuse[0] * floor(diffuse_color * levels) * scale_factor;
     
-    vec3 e;
-    e = normalize(eye - world_point);
+    vec3 H = normalize(L + V);
+    float specular_color = 0.0;
     
-    vec3 output_color;
-    vec3 diffuseColor;
-    vec3 specularColor;
-    for (int i=0; i<3; i++) {
-        diffuseColor[i] = lc[i]*max(c, 0)*diffuse[i];
-        specularColor[i] = lc[i]*specular[i]*pow(max(dot(R, e), 0),4);
-        output_color[i] = lc[i]*max(c, 0)*diffuse[i] + lc[i]*specular[i]*pow(max(dot(R, e), 0),4) + lc[i]*ambient[i];
+    if(dot(L, output_normal) > 0.0){
+        specular_color = specular[0] * pow(max(0, dot(H, output_normal)), ambient[0]);
     }
     
-    float NdotL = max(dot(N, L), 0);
-    float NdotV = max(dot(N, e), 0);
-    
-    if (NdotL < 0.5) {
-        output_color = vec3(1.0, 0.5, 0.0);
-    }else{
-        if (NdotL >= 0.5 && NdotL<0.75) {
-            output_color = diffuseColor;
-        }else {
-            output_color = specularColor;
-        }
-    }
-    if (NdotV < 0.2) {
-        output_color = vec3(0.0, 0.0, 0.0);
-    }
-    // Use the color passed in. An alpha of 1.0f means it is not transparent.
-    fragColor = vec4(output_color, 1.0f);
+    float specMask = (pow(dot(H, output_normal), ambient[0]) > 0.4) ? 1 : 0;
+    float edgeDetection = (dot(V, output_normal) > 0.2) ? 1 : 0;
+    vec3 color = edgeDetection * (color + diffuseColor + specular_color * specMask);
+    fragColor = vec4(color, 1);
 }
+
+
+

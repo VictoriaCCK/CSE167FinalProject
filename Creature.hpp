@@ -29,7 +29,7 @@ private:
     GLuint vao, vbo;
     GLfloat pointSize;
 public:
-    glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    glm::vec3 ambient = glm::vec3(0.50, 0.50, 0.50);
     glm::vec3 diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
     glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
     Creature(std::string objFilename, GLfloat pointSize);

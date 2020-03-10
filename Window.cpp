@@ -89,7 +89,7 @@ bool Window::initializeObjects()
 	// Create a cube of size 5.
 	cube = new Cube(5.0f);
 	// Create a point cloud consisting of cube vertices.
-	guider = new Creature("/Users/victoria/Downloads/HW2/dragon.obj", 1);
+	guider = new Creature("/Users/victoria/Downloads/Avatar.obj", 3);
 
 	// Set cube to be the first to display
 	currentObj = guider;
