@@ -60,27 +60,7 @@ bool Window::initializeProgram()
 //    modelLoc = glGetUniformLocation(program, "model");
 //    colorLoc = glGetUniformLocation(program, "color");
 
-    programGuider = LoadShaders("shaders/toon shader.vert", "shaders/toon shader.frag");
-    
-    // Check the shader program.
-    if (!programGuider)
-    {
-        std::cerr << "Failed to initialize shader program" << std::endl;
-        return false;
-    }
-    
-    // Activate the shader program.
-    glUseProgram(program);
-    // Get the locations of uniform variables.
-    projectionLocGuider = glGetUniformLocation(programGuider, "projection");
-    viewLocGuider = glGetUniformLocation(programGuider, "view");
-    modelLocGuider = glGetUniformLocation(programGuider, "model");
-    colorLocGuider = glGetUniformLocation(programGuider, "color");
-    eyeLocGuider = glGetUniformLocation(programGuider, "eye");
-    specularLocGuider = glGetUniformLocation(programGuider, "specular");
-    ambientLocGuider = glGetUniformLocation(programGuider, "ambient");
-    diffuseLocGuider = glGetUniformLocation(programGuider, "diffuse");
-    
+    if(initialGuider() == false) return false;
 	return true;
 }
 
@@ -88,11 +68,6 @@ bool Window::initializeObjects()
 {
 	// Create a cube of size 5.
 	cube = new Cube(5.0f);
-	// Create a point cloud consisting of cube vertices.
-	guider = new Creature("/Users/victoria/Downloads/Avatar.obj", 3);
-
-	// Set cube to be the first to display
-	currentObj = guider;
 
 	return true;
 }
@@ -189,38 +164,7 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {
-		// Switch back to using OpenGL's rasterizer
-		glUseProgram(programGuider);
-		// Clear the color and depth buffers.
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// Specify the values of the uniform variables we are going to use.
-		/*
-		 * TODO: Section 3 and 4: Modify the code here to draw both the bunny and
-		 * the dragon
-		 * Note that the model matrix sent to the shader belongs only
-		 * to what object the currentObj ptr is pointing to. You will need to
-		 * use another call to glUniformMatrix4fv to change the model matrix
-		 * data being sent to the vertex shader before you draw the other object
-		 */
-		glm::mat4 model = currentObj->getModel();
-		glm::vec3 color = currentObj->getColor();
-		glUniformMatrix4fv(projectionLocGuider, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(viewLocGuider, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(modelLocGuider, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform3fv(colorLocGuider, 1, glm::value_ptr(color));
-        glUniform3fv(eyeLocGuider, 1, glm::value_ptr(eye));
-        glUniform3fv(ambientLocGuider, 1, glm::value_ptr(guider->ambient));
-        glUniform3fv(specularLocGuider, 1, glm::value_ptr(guider->specular));
-        glUniform3fv(diffuseLocGuider, 1, glm::value_ptr(guider->diffuse));
-		// Render the object.
-		currentObj->draw();
-
-		// Gets events, including input such as keyboard and mouse or window resizing.
-		glfwPollEvents();
-		// Swap buffers.
-		glfwSwapBuffers(window);
-	
+    displayGuider(window);
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -232,15 +176,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	 // Check for a key press.
 	if (action == GLFW_PRESS)
 	{
-		// Uppercase key presses (shift held down + key press)
-		if (mods == GLFW_MOD_SHIFT) {
-			switch (key) {
-			default:
-				break;
-			}
-		}
-
-		// Deals with lowercase key presses
 		switch (key)
 		{
 		case GLFW_KEY_ESCAPE:
@@ -251,12 +186,70 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// Set currentObj to cube
 			currentObj = cube;
 			break;
-		case GLFW_KEY_2:
-			// Set currentObj to guider
-			currentObj = guider;
-			break;
 		default:
 			break;
 		}
 	}
+}
+
+bool Window::initialGuider()
+{
+    programGuider = LoadShaders("shaders/toon shader.vert", "shaders/toon shader.frag");
+    
+    // Check the shader program.
+    if (!programGuider)
+    {
+        std::cerr << "Failed to initialize shader program" << std::endl;
+        return false;
+    }
+    
+    // Activate the shader program.
+    glUseProgram(program);
+    // Get the locations of uniform variables.
+    projectionLocGuider = glGetUniformLocation(programGuider, "projection");
+    viewLocGuider = glGetUniformLocation(programGuider, "view");
+    modelLocGuider = glGetUniformLocation(programGuider, "model");
+    colorLocGuider = glGetUniformLocation(programGuider, "color");
+    eyeLocGuider = glGetUniformLocation(programGuider, "eye");
+    specularLocGuider = glGetUniformLocation(programGuider, "specular");
+    ambientLocGuider = glGetUniformLocation(programGuider, "ambient");
+    diffuseLocGuider = glGetUniformLocation(programGuider, "diffuse");
+    
+    guider = new Creature("/Users/victoria/Downloads/Avatar.obj", 3);
+    return true;
+}
+
+void Window::displayGuider(GLFWwindow* window)
+{
+    // Switch back to using OpenGL's rasterizer
+    glUseProgram(programGuider);
+    // Clear the color and depth buffers.
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // Specify the values of the uniform variables we are going to use.
+    /*
+     * TODO: Section 3 and 4: Modify the code here to draw both the bunny and
+     * the dragon
+     * Note that the model matrix sent to the shader belongs only
+     * to what object the currentObj ptr is pointing to. You will need to
+     * use another call to glUniformMatrix4fv to change the model matrix
+     * data being sent to the vertex shader before you draw the other object
+     */
+    glm::mat4 model = guider->getModel();
+    glm::vec3 color = guider->getColor();
+    glUniformMatrix4fv(projectionLocGuider, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(viewLocGuider, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(modelLocGuider, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform3fv(colorLocGuider, 1, glm::value_ptr(color));
+    glUniform3fv(eyeLocGuider, 1, glm::value_ptr(eye));
+    glUniform3fv(ambientLocGuider, 1, glm::value_ptr(guider->ambient));
+    glUniform3fv(specularLocGuider, 1, glm::value_ptr(guider->specular));
+    glUniform3fv(diffuseLocGuider, 1, glm::value_ptr(guider->diffuse));
+    // Render the object.
+    guider->draw();
+    
+    // Gets events, including input such as keyboard and mouse or window resizing.
+    glfwPollEvents();
+    // Swap buffers.
+    glfwSwapBuffers(window);
 }
