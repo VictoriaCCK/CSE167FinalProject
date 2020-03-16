@@ -21,8 +21,8 @@ const float scale_factor = 1/levels;
 
 void main()
 {
-    vec3 dl = vec3(0.0f, 50.0f, 0.0f);
-    vec3 lc = vec3(1.0f, 1.0f, 0.0f);
+    vec3 dl = vec3(10.0f, -3.f, 2.0f);
+    vec3 lc = vec3(10.0f, 10.0f, 0.0f);
     vec3 L = normalize(dl - output_position);
     vec3 V = normalize(eye - output_position);
     
