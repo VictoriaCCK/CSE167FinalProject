@@ -11,8 +11,10 @@ namespace
     
     Cube* cube;
     Creature* guider;
-    FractalSystem* forest;
+    vector<FractalSystem*> forest;
+    FractalSystem* tree;
     Trunks* t;
+    vector<Trunks*> ts;
     Object* currentObj;  // The object currently displaying.
     
     glm::vec3 eye(0, 0, 20); // Camera position.
@@ -79,7 +81,7 @@ void Window::cleanUp()
     // Deallcoate the objects.
     delete cube;
     delete guider;
-    delete forest;
+    delete tree;
     delete t;
     // Delete the shader program.
     glDeleteProgram(program);
@@ -242,8 +244,13 @@ bool Window::initialTree()
     viewLoc = glGetUniformLocation(program, "view");
     modelLoc = glGetUniformLocation(program, "model");
     colorLoc = glGetUniformLocation(program, "color");
-    forest = new FractalSystem();
-    t = new Trunks(forest->trunks);
+    for (int i = 0; i<15 ; ) {
+        tree = new FractalSystem(glm::vec3(i, 0.f ,0.f), glm::vec3(0.f, 1.f ,0.f));
+        forest.push_back(tree);
+        t = new Trunks(tree->trunks);
+        ts.push_back(t);
+        i += 8;
+    }
     return true;
 }
 
@@ -270,11 +277,15 @@ void Window::displayTree(GLFWwindow* window)
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniform3fv(colorLoc, 1, glm::value_ptr(color));
     // Render the object.
-    forest->draw();
     
-    color = glm::vec3(0.98f, 0.f, 0.038f);
-    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
-    t->draw();
+    for (int i = 0; i < forest.size() ; i++) {
+        color = glm::vec3(0.f, 1.f, 0.f);
+        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+        forest[i]->draw();
+        color = glm::vec3(0.50f, 0.16f, 0.16f);
+        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+        ts[i]->draw();
+    }
     
 }
 

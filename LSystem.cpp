@@ -8,12 +8,12 @@
 
 #include "LSystem.hpp"
 
-FractalSystem::FractalSystem()
+FractalSystem::FractalSystem(glm::vec3 tree_pos, glm::vec3 tree_dir)
 {
 
     model = glm::mat4(1.f);
-    g = new Grammar("X", 8);
-    generateTree();
+    g = new Grammar("S", 6);
+    generateTree(tree_pos, tree_dir);
     
     for (int i = 0; i<vertices.size(); i++) {
         indices.push_back(i);
@@ -68,14 +68,13 @@ void FractalSystem::draw()
 }
 
 
-void FractalSystem::generateTree()
+void FractalSystem::generateTree(glm::vec3 pos, glm::vec3 dir)
 {
     trunks.clear();
     leaves.clear();
-    cur_state.pos = glm::vec3(0, 6, 0);
-    cur_state.dir = glm::vec3(0, 0.2, 0);
+    cur_state.pos = pos;
+    cur_state.dir = dir;
     cur_state.level = 0;
-    cur_state.radius = radius;
     vector<State> stacks;
     stacks.push_back(cur_state);
     
@@ -90,124 +89,66 @@ void FractalSystem::generateTree()
                 cur_state.pos.y += length*cur_state.dir.y;
                 cur_state.pos.z += length*cur_state.dir.z;
                 tmp.pos2 = cur_state.pos;
-                tmp.radius = cur_state.radius;
                 tmp.level = cur_state.level;
                 trunks.push_back(tmp);
                 
                 vertices.push_back(tmp.pos1);
-
-                State center;
-                std::vector<State> leaf_seg;
-                center.dir = tmp.pos2 - tmp.pos1;
-                center.pos = tmp.pos1;
-                leaf_seg.push_back(center);
-                
-                double deltax = 0, deltay = 0;
-                State leaf_tmp;
-                for (int i = 0; i < 5; i ++ ) {
-                    deltax = leaf_radius * cos(i);
-                    deltay = leaf_radius * sin(i);
-                    leaf_tmp.pos.x = center.pos.x + deltax;
-                    leaf_tmp.pos.y = center.pos.y + deltay;
-                    leaf_tmp.pos.z = center.pos.z;
-                    leaf_seg.push_back(leaf_tmp);
-                    vertices.push_back(leaf_tmp.pos);
-                    leaf_seg.push_back(center);
-                    vertices.push_back(center.pos);
-                }
-                leaves.push_back(leaf_seg);
-                
-                std::vector<State>().swap(leaf_seg);
                 vertices.push_back(tmp.pos2);
-                center.dir = tmp.pos2 - tmp.pos1;
-                center.pos = tmp.pos2;
-                leaf_seg.push_back(center);
-                
-                deltax = 0, deltay = 0;
-                for (int i = 0; i < 5; i ++ ) {
-                    deltax = leaf_radius * cos(i);
-                    deltay = leaf_radius * sin(i);
-                    leaf_tmp.pos.x = center.pos.x + deltax;
-                    leaf_tmp.pos.y = center.pos.y + deltay;
-                    leaf_tmp.pos.z = center.pos.z;
-                    leaf_seg.push_back(leaf_tmp);
-                    vertices.push_back(leaf_tmp.pos);
-                    leaf_seg.push_back(center);
-                    vertices.push_back(center.pos);
-                }
-                leaves.push_back(leaf_seg);
                 
                 break;
             }
-            case '+':
+            case '+': //z axis
             {
-                    cur_state.dir.x = cos(direction * M_PI / 180) * cur_state.dir.x + sin(direction * M_PI / 180) * cur_state.dir.z;
-                    cur_state.dir.z = -sin(direction * M_PI / 180) * cur_state.dir.x + cos(direction * M_PI / 180) * cur_state.dir.z;
-                cur_state.dir.x = cos(direction * M_PI / 180);
-                cur_state.dir.y = sin(direction * M_PI / 180);
+                cur_state.dir.x = cos(angle * M_PI / 180) * cur_state.dir.x - sin(angle * M_PI / 180) * cur_state.dir.y;
+                cur_state.dir.y = sin(angle * M_PI / 180) * cur_state.dir.x + cos(angle * M_PI / 180) * cur_state.dir.y;
                 break;
             }
-            case '-':
+            case '-': // -z axis
             {
-//                if(cur_state.dir.x == 0) cur_state.dir.x = cos( - direction * M_PI / 180);
-//                else
-//                    cur_state.dir.x = cos( - direction * M_PI / 180) * cur_state.dir.x + sin( - direction * M_PI / 180) * cur_state.dir.z;
-////                if(cur_state.dir.z == 0) cur_state.dir.z = sin( - direction * M_PI / 180);
-////                else
-//                    cur_state.dir.z = -sin( - direction * M_PI / 180) * cur_state.dir.x + cos( - direction * M_PI / 180) * cur_state.dir.z;
-//                cur_state.dir.z = -sin( - direction * M_PI / 180) * cur_state.dir.x + cos( - direction * M_PI / 180) * cur_state.dir.z;
-//                cur_state.dir.x = cos( - direction * M_PI / 180);
-//                cur_state.dir.y = sin( - direction * M_PI / 180);
-                direction -= angle;
+                cur_state.dir.x = cos( - angle * M_PI / 180) * cur_state.dir.x - sin( - angle * M_PI / 180) * cur_state.dir.y;
+                cur_state.dir.y = sin( - angle * M_PI / 180) * cur_state.dir.x + cos( - angle * M_PI / 180) * cur_state.dir.y;
                 break;
             }
             case '$': //y axis
             {
-                cur_state.dir.x = cos(direction * M_PI / 180);
-                cur_state.dir.z = sin(direction * M_PI / 180);
-                direction += angle;
+                cur_state.dir.x = cos(angle * M_PI / 180) * cur_state.dir.x + sin(angle * M_PI / 180) * cur_state.dir.z;
+                cur_state.dir.z = - sin(angle * M_PI / 180) * cur_state.dir.x + cos(angle * M_PI / 180) * cur_state.dir.z;
                 break;
             }
             case '%': // -y axis
             {
-                cur_state.dir.x = cos(-direction * M_PI / 180);
-                cur_state.dir.z = sin(-direction * M_PI / 180);
-                direction -= angle;
+                cur_state.dir.x = cos( - angle * M_PI / 180) * cur_state.dir.x + sin( - angle * M_PI / 180) * cur_state.dir.z;
+                cur_state.dir.z = - sin( - angle * M_PI / 180) * cur_state.dir.x + cos( - angle * M_PI / 180) * cur_state.dir.z;
                 break;
             }
             case '^': //x axis
             {
-                cur_state.dir.y = cos(direction * M_PI / 180);
-                cur_state.dir.z = sin(direction * M_PI / 180);
-                direction += angle;
+                cur_state.dir.y = cos( angle * M_PI / 180) * cur_state.dir.y - sin( angle * M_PI / 180) * cur_state.dir.z;
+                cur_state.dir.z = sin( angle * M_PI / 180) * cur_state.dir.y + cos( angle * M_PI / 180) * cur_state.dir.z;
                 break;
             }
             case '&': // -x axis
             {
-                cur_state.dir.y = cos(-direction * M_PI / 180);
-                cur_state.dir.z = sin(-direction * M_PI / 180);
-                direction -= angle;
+                cur_state.dir.y = cos( - angle * M_PI / 180) * cur_state.dir.y - sin( - angle * M_PI / 180) * cur_state.dir.z;
+                cur_state.dir.z = sin( - angle * M_PI / 180) * cur_state.dir.y + cos( - angle * M_PI / 180) * cur_state.dir.z;
                 break;
             }
             case '*': //z axis
             {
-                cur_state.dir.x = cos(direction * M_PI / 180);
-                cur_state.dir.y = sin(direction * M_PI / 180);
-                direction += angle;
+                cur_state.dir.x = cos(angle * M_PI / 180) * cur_state.dir.x - sin(angle * M_PI / 180) * cur_state.dir.y;
+                cur_state.dir.y = sin(angle * M_PI / 180) * cur_state.dir.x + cos(angle * M_PI / 180) * cur_state.dir.y;
                 break;
             }
             case '/': // -z axis
             {
-                  cur_state.dir.x = cos(-direction * M_PI / 180);
-                  cur_state.dir.y = sin(-direction * M_PI / 180);
-                  direction -= angle;
+                cur_state.dir.x = cos( - angle * M_PI / 180) * cur_state.dir.x - sin( - angle * M_PI / 180) * cur_state.dir.y;
+                cur_state.dir.y = sin( - angle * M_PI / 180) * cur_state.dir.x + cos( - angle * M_PI / 180) * cur_state.dir.y;
                 break;
             }
             case '[':
             {
                 stacks.push_back(cur_state);
                 length *= length_factor;
-                radius *= radius_factor;
                 l += 1;
                 break;
             }
@@ -224,7 +165,6 @@ void FractalSystem::generateTree()
                     cur_state.pos.y += length*cur_state.dir.y;
                     cur_state.pos.z += length*cur_state.dir.z;
                     tmp.pos2 = cur_state.pos;
-                    tmp.radius = cur_state.radius;
                     tmp.level = cur_state.level;
                     trunks.push_back(tmp);
                 

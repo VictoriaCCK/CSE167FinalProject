@@ -18,11 +18,16 @@ Grammar::Grammar(string origin, int levels)
 //    d['F'].push_back("F[+F]F[-F]F");
 //    d['F'].push_back("F[+F]F[-F[+F]]");
 //    d['F'].push_back("FF+[+F+F]-[+F]");
-    d['F'].push_back("F");
-    d['X'].push_back("F[$$$[*X][/X]]");
-    d['X'].push_back("F[%%%[/X][*X]]");
-    d['X'].push_back("F[$[*X][/X]]");
-    d['X'].push_back("F[%%[*X][/X]]");
+//    d['F'].push_back("F");
+//    d['X'].push_back("F[%[^$X]][$[&X]]^X");
+//    d['X'].push_back("F[$$$[*X][/X]]");
+//    d['X'].push_back("F[%%%[/X][*X]]");
+//    d['X'].push_back("F[$[*X][/X]]");
+//    d['X'].push_back("F[%%[*X][/X]]");
+    d['S'].push_back("F[^$X][*%X][&%X]");
+    d['X'].push_back("F[^%D][&$D][/$D][*%D]");
+    d['X'].push_back("F[&%D][*$D][/$D][^%D]");
+    d['D'].push_back("F[^$X][*%FX][&%X]");
     
     l = levels;
     string result = gram;
@@ -49,7 +54,7 @@ string Grammar:: search(char target)
         ret.push_back(target);
         return ret;
     }
-    
+    srand((unsigned)time(NULL));
     int num = rand()%d[target].size();
 
     return d[target][num];
