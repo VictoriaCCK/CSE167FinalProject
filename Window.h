@@ -38,7 +38,7 @@ public:
 	static void idleCallback();
 	static void displayCallback(GLFWwindow*);
     static void displayGuider(GLFWwindow*);
-    static void displayTree(GLFWwindow*);
+    static void displayTree(GLFWwindow*, int c);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 

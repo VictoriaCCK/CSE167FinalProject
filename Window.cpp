@@ -7,6 +7,7 @@
 namespace
 {
     int width, height;
+    int c = 0;
     std::string windowTitle("GLFW Starter Project");
     
     Cube* cube;
@@ -170,8 +171,13 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {
-    displayTree(window);
     displayGuider(window);
+    for(int i = 0; i<c and i<forest.size(); i++) displayTree(window, i);
+    // Gets events, including input such as keyboard and mouse or window resizing.
+    glfwPollEvents();
+    // Swap buffers.
+    glfwSwapBuffers(window);
+    
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -192,6 +198,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_1:
                 // Set currentObj to cube
                 currentObj = cube;
+                break;
+            case GLFW_KEY_T:
+                // draw tree
+                if (c < forest.size()) c += 1;
                 break;
             default:
                 break;
@@ -244,22 +254,22 @@ bool Window::initialTree()
     viewLoc = glGetUniformLocation(program, "view");
     modelLoc = glGetUniformLocation(program, "model");
     colorLoc = glGetUniformLocation(program, "color");
-    for (int i = 0; i<15 ; ) {
+    for (int i = -5; i<18 ; ) {
         tree = new FractalSystem(glm::vec3(i, 0.f ,0.f), glm::vec3(0.f, 1.f ,0.f));
         forest.push_back(tree);
         t = new Trunks(tree->trunks);
         ts.push_back(t);
-        i += 8;
+        i += 11;
     }
     return true;
 }
 
-void Window::displayTree(GLFWwindow* window)
+void Window::displayTree(GLFWwindow* window, int idx)
 {
     // Switch back to using OpenGL's rasterizer
     glUseProgram(program);
     // Clear the color and depth buffers.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Specify the values of the uniform variables we are going to use.
     /*
@@ -278,23 +288,21 @@ void Window::displayTree(GLFWwindow* window)
     glUniform3fv(colorLoc, 1, glm::value_ptr(color));
     // Render the object.
     
-    for (int i = 0; i < forest.size() ; i++) {
-        color = glm::vec3(0.f, 1.f, 0.f);
-        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
-        forest[i]->draw();
-        color = glm::vec3(0.50f, 0.16f, 0.16f);
-        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
-        ts[i]->draw();
-    }
-    
+    color = glm::vec3(0.f, 1.f, 0.f);
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+    forest[idx]->draw();
+    color = glm::vec3(0.50f, 0.16f, 0.16f);
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+    ts[idx]->draw();
+
 }
 
 void Window::displayGuider(GLFWwindow* window)
 {
     // Switch back to using OpenGL's rasterizer
     glUseProgram(programGuider);
-//    // Clear the color and depth buffers.
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Clear the color and depth buffers.
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Specify the values of the uniform variables we are going to use.
     /*
@@ -317,9 +325,5 @@ void Window::displayGuider(GLFWwindow* window)
     glUniform3fv(diffuseLocGuider, 1, glm::value_ptr(guider->diffuse));
     // Render the object.
     guider->draw();
-    
-    // Gets events, including input such as keyboard and mouse or window resizing.
-    glfwPollEvents();
-    // Swap buffers.
-    glfwSwapBuffers(window);
+
 }
