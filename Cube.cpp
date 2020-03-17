@@ -1,5 +1,5 @@
 #include "Cube.h"
-
+#include <iostream>
 Cube::Cube(float size)
 {
 	// Model matrix. Since the original size of the cube is 2, in order to

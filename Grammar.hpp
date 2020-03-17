@@ -10,5 +10,19 @@
 #define Grammar_hpp
 
 #include <stdio.h>
+#include <iostream>
+#include <map>
 
+using namespace std;
+
+class Grammar
+{
+public:
+    int l = 0;
+    map<char, std::vector<string>> d;
+    string gram;
+    Grammar(string origin, int levels);
+    ~Grammar();
+    string search(char target);
+};
 #endif /* Grammar_hpp */

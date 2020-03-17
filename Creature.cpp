@@ -49,8 +49,10 @@ Creature::Creature(std::string objFilename, GLfloat pointSize)
     // Set the model matrix to an identity matrix.
     model = glm::mat4(1);
     model = glm::scale(model, glm::vec3(5,5,5));
+    model = glm::rotate(model, glm::radians(28.f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::translate(model,glm::vec3(0,0,-10));
     // Set the color.
-    color = glm::vec3(1.0f, 0.0f, 0.0f);
+    color = glm::vec3(1.0f, 0.45f, 0.0f);
     
     // Generate a vertex array (VAO) and a vertex buffer objects (VBO).
     glGenVertexArrays(1, &vao);

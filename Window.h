@@ -21,12 +21,16 @@
 #include "Cube.h"
 #include "shader.h"
 #include "Creature.hpp"
+#include "Grammar.hpp"
+#include "LSystem.hpp"
+#include "Trunks.hpp"
 
 class Window
 {
 public:
 	static bool initializeProgram();
     static bool initialGuider();
+    static bool initialTree();
 	static bool initializeObjects();
 	static void cleanUp();
 	static GLFWwindow* createWindow(int width, int height);
@@ -34,6 +38,7 @@ public:
 	static void idleCallback();
 	static void displayCallback(GLFWwindow*);
     static void displayGuider(GLFWwindow*);
+    static void displayTree(GLFWwindow*);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 
